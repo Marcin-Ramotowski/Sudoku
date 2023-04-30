@@ -18,7 +18,7 @@ function sudoku = getSudokuFromApi()
     'X-RapidAPI-Key',api_key; ...
     'X-RapidAPI-Host',api_host]);
 
-    difficulty = ''; % np. 'Easy', 'Medium', 'Hard'
+    difficulty = questdlg('Wybierz poziom trudności:', 'Sudoku', 'Easy', 'Medium', 'Hard', 'Easy');
     seed = ''; % np. '1234567890'
     url = '/sudoku/generate';
     if ~isempty(seed)
