@@ -5,17 +5,43 @@
 
 createSudokuBoard();
 
+function sudoku = getSudokuFromApi()
+    % Odczyt danych z pliku .env
+    config = readtable('.env', 'Delimiter', '=', 'ReadVariableNames', false, 'FileType', 'text');
+    content_type = config.Var2(1);
+    api_key = config.Var2(2);
+    api_host = config.Var2(3);
+
+    % Ustawienie nagłówków żądania
+    options = weboptions("HeaderFields", ...
+    ['content-type', content_type; ...
+    'X-RapidAPI-Key',api_key; ...
+    'X-RapidAPI-Host',api_host]);
+
+    difficulty = ''; % np. 'Easy', 'Medium', 'Hard'
+    seed = ''; % np. '1234567890'
+    url = '/sudoku/generate';
+    if ~isempty(seed)
+        url = [url '?seed=' seed];
+    elseif ~isempty(difficulty)
+        url = [url '?difficulty=' difficulty];
+    end
+    % Wysłanie żądania GET i odbiór odpowiedzi
+    response = webread(['https://sudoku-generator1.p.rapidapi.com' url], options);
+    sudoku = response.puzzle;
+end
+
+
+
 % Główna funkcja tworząca planszę
 function createSudokuBoard()
 
     % Tworzenie macierzy przechowującej wartości pól na planszy
-    sudoku = [7,9,2,4,5,1,8,6,3; 5,3,6,8,7,2,1,9,4; 1,4,8,3,9,6,2,5,7;
-              9,6,4,1,8,3,5,7,2; 2,5,1,9,6,7,4,3,0; 8,7,3,2,4,5,6,1,0;
-              3,1,9,6,2,8,7,4,0; 4,2,7,5,1,9,3,8,0; 6,8,5,7,3,4,9,2,0];
+    sudoku = getSudokuFromApi();
+    sudoku = reshape(sudoku, 9, []).';
 
-    
     % Liczba ruchów do wykonania
-    moves = 81 - length(sudoku(sudoku>0));
+    moves = 81 - length(sudoku(sudoku~='.'));
     
     % Tworzenie okna gry
     fig = figure(Position=[200 200 500 500], MenuBar='none', ...
@@ -28,7 +54,7 @@ function createSudokuBoard()
             x = 40 + (col-1)*40;
             y = 470 - row*40;
             number = sudoku(row,col);
-            if number == 0
+            if number == '.'
                 sudoku_btn(row,col) = uicontrol(Style='pushbutton', String='', Position=[x y 40 40], ...
                     FontSize=16, FontWeight='bold', BackgroundColor=[1 1 1], Callback={@sudoku_btn_callback, row, col});
             else
@@ -43,8 +69,8 @@ function createSudokuBoard()
     for num = 1:9
         x = 40 + (num-1)*40;
         y = 40;
-        num_btn(num) = uicontrol(Style='togglebutton', String=num2str(num), Position=[x y 40 40], ...
-            FontSize=16, FontWeight='bold', BackgroundColor=[1 1 1], Callback={@num_btn_callback, num});
+        num_btn(num) = uicontrol(Style='togglebutton', String=num, Position=[x y 40 40], ...
+            FontSize=16, FontWeight='bold', BackgroundColor=[1 1 1], Callback={@num_btn_callback, num2str(num)});
     end
 
     % Linie oddzielające podkwadraty
