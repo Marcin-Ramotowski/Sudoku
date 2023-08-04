@@ -98,6 +98,13 @@ function createSudokuBoard()
         FontWeight='bold', BackgroundColor=[1 1 1], Callback= {@num_btn_callback, 0});
     note_mode_btn = uicontrol(Style="togglebutton", String='N', Position=[440 40 40 40], FontSize=16, ...
         FontWeight='bold', BackgroundColor=[1 1 1]);
+
+    % Wyświetlanie liczby pomyłek oraz limitu
+    uicontrol(Style="text", String="Liczba pomyłek:", Position=[400 270 80 120], FontSize=9);
+    fails_counter = uicontrol(Style="text", String=0, Position=[418 318 40 40], FontSize=9);
+    fails_limit = 3;
+    uicontrol(Style="text", String="Limit pomyłek:", Position=[400 170 80 120], FontSize=9);
+    uicontrol(Style="text", String=fails_limit, Position=[418 218 40 40], FontSize=9);
     
     % Inicjalizacja uchwytów dla elementów interfejsu użytkownika
     handles.sudoku = sudoku;
@@ -107,6 +114,8 @@ function createSudokuBoard()
     handles.sudoku_btn = sudoku_btn;
     handles.num_btn = num_btn;
     handles.note_mode_btn = note_mode_btn;
+    handles.fails_counter = fails_counter;
+    handles.fails_limit = fails_limit;
     guidata(fig, handles);
 end
 
@@ -131,6 +140,7 @@ function sudoku_btn_callback(src, ~, row, col)
     solution = handles.solution;
     moves = handles.moves;
     note_mode = handles.note_mode_btn.Value;
+    fails_number = str2num(get(handles.fails_counter, 'String'));
     prev_value = get(src, 'String');
 
     if current_num ~= 0
@@ -159,7 +169,11 @@ function sudoku_btn_callback(src, ~, row, col)
                 set(src, String=num2str(current_num), FontSize=16, FontWeight='bold');
                 set(src, BackgroundColor=[0 1 0]);
             else
-                errordlg('Błąd! Tutaj nie możesz wstawić tej cyfry.')
+                fails_number = fails_number + 1;
+                set(handles.fails_counter, String=fails_number)
+                if fails_number <= handles.fails_limit
+                    errordlg('Błąd! Tutaj nie możesz wstawić tej cyfry.')
+                end
             end
         end
     else
@@ -170,15 +184,22 @@ function sudoku_btn_callback(src, ~, row, col)
         end
     end
 
-    if moves == 0
-        answer = questdlg('Gratulacje, wygrałeś Sudoku!', 'Wygrana', 'Restart', 'Zakończ', 'Restart');
+    if moves == 0 || fails_number > handles.fails_limit
+        if moves == 0
+            message = 'Gratulacje, rozwiązałeś Sudoku!';
+            title = 'Wygrana';
+        else
+            message = 'Niestety, przegrałeś.';
+            title = 'Przegrana';
+        end
+        answer = questdlg(message, title, 'Restart', 'Zakończ', 'Restart');
         if strcmp(answer, 'Restart')
             close;
             createSudokuBoard();
             return;
-        elseif strcmp(answer, 'Zakończ')
-            close;
-            return;
+    elseif strcmp(answer, 'Zakończ')
+        close;
+        return;
         end
     end
 

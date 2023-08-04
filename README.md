@@ -1,11 +1,11 @@
 # Sudoku
-This program is a desktop implementation of the popular number puzzle game, Sudoku. The design and functionality of the game are based on the Sudoku.com application by EasyBrain Studio available in the Google Play Store.
+This program is a desktop implementation of the popular number puzzle game, Sudoku. The design and functionality of the game are based on the Sudoku.com application by EasyBrain Studio available in the Google Play Store. Moreover this application collaborate with Sudoku-Generator API available on the RapidApi website in order to get random board and solution to this.
 
 ## Installation and Usage
 To run the program, you need to have Matlab installed on your computer and subscribed Sudoku-Generator API from https://rapidapi.com/gregor-i/api/sudoku-generator1. Usage of this API is free for using 1000 objects per day. In the .env file you have to fill such atributes: content-type, X-RapidAPI-Key and X-RapidAPI-Host. Values of the last two atributes you can copy from the code snippet from the right column on the RapidAPI website indicated in this section. Content-type should be set to 'application/octet-stream'. The program is launched by running the Sudoku.m file in Matlab using the standard way for running such scripts, either by clicking the 'Run' button in the top panel or using the keyboard shortcut ctrl+enter.
 
 ## How to Play
-The game window consists of a board and a control panel at the bottom. The user fills in the board fields by first selecting a button with a number or 'X' letter, which they want to input into the free field of the board. Then, they click on the selected field, and if the number can be placed in the field, it appears as text in that field. When all the fields are completed, then a window is displayed informing the user of the win and allowing the user to choose between restarting or quitting the game.
+The game window consists of a board and a control panel at the bottom. The user fills in the board fields by first selecting a button with a number or 'X' letter, which they want to input into the free field of the board. Then, they click on the selected field, and if the number can be placed in the field, it appears as text in that field. When all the fields are completed, then a window is displayed informing the user of the win and allowing the user to choose between restarting or quitting the game. You have limit of 3 mistakes per game. If you exceed this limit you will lose the game. Fails counter is placed to the right of board.
 
 ## Features
 The game has the following functionalities:
@@ -21,7 +21,6 @@ The game has the following functionalities:
 
 ## Room for Improvement
 - Tips for the user
-- User mistake limits
 
 ## Game Interface
 ![obraz](https://user-images.githubusercontent.com/109000485/233642239-3031915d-9dab-4aa0-9e2a-27a992233f6a.png)
