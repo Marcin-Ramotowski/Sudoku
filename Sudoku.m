@@ -173,10 +173,12 @@ function sudoku_btn_callback(src, ~, row, col)
     if moves == 0
         answer = questdlg('Gratulacje, wygrałeś Sudoku!', 'Wygrana', 'Restart', 'Zakończ', 'Restart');
         if strcmp(answer, 'Restart')
-            close all;
+            close;
             createSudokuBoard();
-    elseif strcmp(answer, 'Zakończ')
-        close all;
+            return;
+        elseif strcmp(answer, 'Zakończ')
+            close;
+            return;
         end
     end
 
