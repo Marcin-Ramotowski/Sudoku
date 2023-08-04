@@ -5,19 +5,8 @@
 
 createSudokuBoard();
 
-function sudoku = getSudokuFromApi()
-    % Odczyt danych z pliku .env
-    config = readtable('.env', 'Delimiter', '=', 'ReadVariableNames', false, 'FileType', 'text');
-    content_type = config.Var2(1);
-    api_key = config.Var2(2);
-    api_host = config.Var2(3);
-
-    % Ustawienie nagłówków żądania
-    options = weboptions("HeaderFields", ...
-    ['content-type', content_type; ...
-    'X-RapidAPI-Key',api_key; ...
-    'X-RapidAPI-Host',api_host]);
-
+function sudoku = getSudokuFromApi(options)
+    % Ustawienie parametrów żądania
     difficulty = questdlg('Wybierz poziom trudności:', 'Sudoku', 'Easy', 'Medium', 'Hard', 'Easy');
     seed = ''; % np. '1234567890'
     url = '/sudoku/generate';
@@ -31,15 +20,40 @@ function sudoku = getSudokuFromApi()
     sudoku = response.puzzle;
 end
 
+function solution = getSolutionFromApi(puzzle, options)
+    % Ustawienie parametrów żądania
+    url = '/sudoku/solve';
+    if ~isempty(puzzle)
+        url = [url '?puzzle=' puzzle];
+    end
+    % Wysłanie żądania GET i odbiór odpowiedzi
+    response = webread(['https://sudoku-generator1.p.rapidapi.com' url], options);
+    solution = response.solution;
+end
 
 
 % Główna funkcja tworząca planszę
 function createSudokuBoard()
+    
+    % Odczyt danych z pliku .env
+    config = readtable('.env', 'Delimiter', '=', ...
+        'ReadVariableNames', false, 'FileType', 'text');
+    content_type = config.Var2(1);
+    api_key = config.Var2(2);
+    api_host = config.Var2(3);
 
-    % Tworzenie macierzy przechowującej wartości pól na planszy
-    sudoku = getSudokuFromApi();
+    % Ustawienie nagłówków żądania
+    options = weboptions("HeaderFields", ...
+    ['content-type', content_type; ...
+    'X-RapidAPI-Key',api_key; ...
+    'X-RapidAPI-Host',api_host]);
+
+    % Odbiór macierzy sudoku oraz jego rozwiązania z API
+    sudoku = getSudokuFromApi(options);
+    solution = getSolutionFromApi(sudoku, options);
     sudoku = reshape(sudoku, 9, []).';
-
+    solution = reshape(solution, 9, []).';
+    
     % Liczba ruchów do wykonania
     moves = 81 - length(sudoku(sudoku~='.'));
     
@@ -70,7 +84,7 @@ function createSudokuBoard()
         x = 40 + (num-1)*40;
         y = 40;
         num_btn(num) = uicontrol(Style='togglebutton', String=num, Position=[x y 40 40], ...
-            FontSize=16, FontWeight='bold', BackgroundColor=[1 1 1], Callback={@num_btn_callback, num2str(num)});
+            FontSize=16, FontWeight='bold', BackgroundColor=[1 1 1], Callback={@num_btn_callback, num});
     end
 
     % Linie oddzielające podkwadraty
@@ -87,6 +101,7 @@ function createSudokuBoard()
     
     % Inicjalizacja uchwytów dla elementów interfejsu użytkownika
     handles.sudoku = sudoku;
+    handles.solution = solution;
     handles.current_num = 0;
     handles.moves = moves;
     handles.sudoku_btn = sudoku_btn;
@@ -96,23 +111,12 @@ function createSudokuBoard()
 end
 
 % Funkcja sprawdzająca, czy można wstawić daną cyfrę w dane pole
-function score = check_number(sudoku, num, row, col)
-    if ismember(num, sudoku(row,:))
+function score = check_number(sudoku, solution, num, row, col)
+    if sudoku(row, col) ~= '.'
         score = false;
         return;
     end
-    if ismember(num, sudoku(:,col))
-        score = false;
-        return;
-    end
-
-    % współrzędne lewego górnego wierzchołka kwadratu w którym leży
-    % wskazane pole
-    min_x = floor((row-1) / 3) * 3 + 1;
-    min_y = floor((col-1) / 3) * 3 + 1;
-
-    subsquare = sudoku(min_x:min_x+2, min_y:min_y+2);
-    if ismember(num, subsquare)
+    if solution(row, col) ~= num2str(num)
         score = false;
         return;
     end
@@ -124,6 +128,7 @@ function sudoku_btn_callback(src, ~, row, col)
     handles = guidata(src);
     current_num = handles.current_num;
     sudoku = handles.sudoku;
+    solution = handles.solution;
     moves = handles.moves;
     note_mode = handles.note_mode_btn.Value;
     prev_value = get(src, 'String');
@@ -146,7 +151,7 @@ function sudoku_btn_callback(src, ~, row, col)
             end
             end
         else
-            if check_number(sudoku, current_num, row, col)
+            if check_number(sudoku, solution, current_num, row, col)
                 sudoku(row, col) = current_num;
                 if isempty(get(src, 'String')) || get(src, 'FontWeight') ~= "bold"
                     moves = moves - 1;
