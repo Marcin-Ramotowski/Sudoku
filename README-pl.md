@@ -18,3 +18,9 @@ Gra posiada następujące funkcjonalności:
 - Po wypełnieniu wszystkich pól, użytkownik otrzymuje powiadomienie o wygranej i może wybrać grę ponownie lub zakończyć grę.
 - Gra zlicza liczbę pozostałych ruchów za pomocą zmiennej 'moves'. Główna i najważniejsza struktura całego programu jest przechowywana w zmiennej 'handles'. Przechowuje ona odniesienia do najbardziej krytycznych elementów sterujących rozgrywką i statystyk, takich jak liczba pozostałych ruchów, odniesienia do elementów planszy lub liczba aktualnie wybrana przez użytkownika.
 - Ważną rolę odgrywa również funkcja "guidata". W pierwszym wywołaniu tej funkcji w ramach funkcji "createSudokuBoard()" program przypisuje strukturę "handles" do okna zawierającego elementy tej struktury. W ciałach funkcji obsługujących kliknięcia aplikacja najpierw przekazuje przycisk, który wywołał zdarzenie, do funkcji "guidata", która zwraca bieżący stan struktury "handles". Na końcu tych funkcji stan struktury "handles" jest aktualizowany, po czym następuje kolejne wywołanie funkcji "guidata", w której ponownie przekazywane jest źródło zdarzenia i bieżący stan "handles", co skutkuje aktualizacją stanu okna gry.
+
+## Planowane nowości
+- dodanie licznika czasu
+
+## Interfejs gry
+![image](https://github.com/Marcin-Ramotowski/Sudoku/assets/109000485/1e52a762-2f3f-46e2-bda2-79a97525c443)

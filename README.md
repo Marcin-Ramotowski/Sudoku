@@ -20,10 +20,7 @@ The game has the following functionalities:
 - The 'guidata' function also plays an important role. In the first call to this function within the 'createSudokuBoard()' function, the program assigns the 'handles' structure to the window that contains the elements of this structure. In the bodies of the functions handling the clicks, the application first passes the button that triggered the event to the 'guidata' function, which returns the current state of the 'handles' structure. At the end of these functions, the state of the 'handles' structure is updated, followed by another call to the 'guidata' function, where the event source and the current 'handles' state are passed again, resulting in the updating of the game window state.
 
 ## Room for Improvement
-- Tips for the user
+- adding timer
 
 ## Game Interface
-![obraz](https://user-images.githubusercontent.com/109000485/233642239-3031915d-9dab-4aa0-9e2a-27a992233f6a.png)
-
-## Credits
-This program was created by Marcin Ramotowski using Matlab documentation and his prior experience with creating desktop applications.
+![image](https://github.com/Marcin-Ramotowski/Sudoku/assets/109000485/1e52a762-2f3f-46e2-bda2-79a97525c443)
