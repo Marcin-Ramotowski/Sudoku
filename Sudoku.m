@@ -94,9 +94,7 @@ function createSudokuBoard()
     end
     
     % Przyciski włączające gumkę oraz tryb notatek
-    num_btn(10) = uicontrol(Style="togglebutton", String='X', Position=[400 40 40 40], FontSize=16, ...
-        FontWeight='bold', BackgroundColor=[1 1 1], Callback= {@num_btn_callback, 0});
-    note_mode_btn = uicontrol(Style="togglebutton", String='N', Position=[440 40 40 40], FontSize=16, ...
+    note_mode_btn = uicontrol(Style="togglebutton", String='N', Position=[400 40 40 40], FontSize=16, ...
         FontWeight='bold', BackgroundColor=[1 1 1]);
 
     % Wyświetlanie liczby pomyłek oraz limitu
@@ -143,44 +141,36 @@ function sudoku_btn_callback(src, ~, row, col)
     fails_number = str2num(get(handles.fails_counter, 'String'));
     prev_value = get(src, 'String');
 
-    if current_num ~= 0
-        if note_mode
-            % Tryb notatek służy do notowania w pustych polach wartości,
-            % jakie potencjalnie mogą się w nich znaleźć
-            if isempty(prev_value) || get(src, 'FontSize') < 16
-            new = num2str(current_num);
-            if ismember(new, prev_value)
-                new_value = prev_value(prev_value~=new);
-            else
-                new_value = [prev_value new];
-            end
-            new_value = sort(new_value);
-            set(src, FontSize=8, FontWeight='normal', String=new_value)
-            if length(new_value) > 6
-                set(src, 'Tooltip', new_value(5:end));
-            end
-            end
+    if note_mode
+        % Tryb notatek służy do notowania w pustych polach wartości,
+        % jakie potencjalnie mogą się w nich znaleźć
+        if isempty(prev_value) || get(src, 'FontSize') < 16
+        new = num2str(current_num);
+        if ismember(new, prev_value)
+            new_value = prev_value(prev_value~=new);
         else
-            if check_number(sudoku, solution, current_num, row, col)
-                sudoku(row, col) = current_num;
-                if isempty(get(src, 'String')) || get(src, 'FontWeight') ~= "bold"
-                    moves = moves - 1;
-                end
-                set(src, String=num2str(current_num), FontSize=16, FontWeight='bold');
-                set(src, BackgroundColor=[0 1 0]);
-            else
-                fails_number = fails_number + 1;
-                set(handles.fails_counter, String=fails_number)
-                if fails_number <= handles.fails_limit
-                    errordlg('Błąd! Tutaj nie możesz wstawić tej cyfry.')
-                end
-            end
+            new_value = [prev_value new];
+        end
+        new_value = sort(new_value);
+        set(src, FontSize=8, FontWeight='normal', String=new_value)
+        if length(new_value) > 6
+            set(src, 'Tooltip', new_value(5:end));
+        end
         end
     else
-        sudoku(row, col) = 0;
-        set(src, String='', BackgroundColor=[1 1 1]);
-        if ~note_mode
-            moves = moves + 1;
+        if check_number(sudoku, solution, current_num, row, col)
+            sudoku(row, col) = current_num;
+            if isempty(get(src, 'String')) || get(src, 'FontWeight') ~= "bold"
+                moves = moves - 1;
+            end
+            set(src, String=num2str(current_num), FontSize=16, FontWeight='bold');
+            set(src, BackgroundColor=[0 1 0]);
+        else
+            fails_number = fails_number + 1;
+            set(handles.fails_counter, String=fails_number)
+            if fails_number <= handles.fails_limit
+                errordlg('Błąd! Tutaj nie możesz wstawić tej cyfry.')
+            end
         end
     end
 
